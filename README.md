@@ -132,4 +132,3 @@ Each week will include:
 
 ---
 
-*Let’s build a smarter way to study – together.*
