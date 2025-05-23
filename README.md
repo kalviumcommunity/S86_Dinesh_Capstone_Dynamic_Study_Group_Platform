@@ -130,6 +130,5 @@ Each week will include:
 - PRs with AI code reviews via @CodiumAI-Agent /review.
 - Weekly walkthrough video updates.
 
----
 
-*Let’s build a smarter way to study – together.*
+
