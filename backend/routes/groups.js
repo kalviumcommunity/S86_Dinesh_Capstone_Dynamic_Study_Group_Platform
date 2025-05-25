@@ -38,4 +38,23 @@ router.post('/', (req, res) => {
   res.status(201).json(newGroup);
 });
 
+// ✅ PUT - update a group by ID
+router.put('/:id', (req, res) => {
+  const groupId = parseInt(req.params.id);
+  const { name, members } = req.body;
+
+  const groupIndex = groups.findIndex(g => g.id === groupId);
+
+  if (groupIndex !== -1) {
+    if (!name || typeof members !== 'number') {
+      return res.status(400).json({ message: "Invalid input" });
+    }
+
+    groups[groupIndex] = { id: groupId, name, members };
+    res.json(groups[groupIndex]);
+  } else {
+    res.status(404).json({ message: "Group not found" });
+  }
+});
+
 module.exports = router;
