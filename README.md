@@ -130,5 +130,8 @@ Each week will include:
 - PRs with AI code reviews via @CodiumAI-Agent /review.
 - Weekly walkthrough video updates.
 
+## render link:
+https://s86-dinesh-capstone-dynamic-study-group-k7vm.onrender.com
+
 
 
