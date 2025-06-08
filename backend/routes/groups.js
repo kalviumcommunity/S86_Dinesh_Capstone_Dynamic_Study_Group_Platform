@@ -1,3 +1,4 @@
+// backend/routes/groups.js
 const express = require('express');
 const router = express.Router();
 const Group = require('../models/Group');
@@ -7,8 +8,8 @@ router.get('/', async (req, res) => {
   try {
     const groups = await Group.find();
     res.json(groups);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching groups', error });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -16,54 +17,63 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const group = await Group.findById(req.params.id);
-    if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
+    if (group) {
+      res.json(group);
+    } else {
+      res.status(404).json({ message: 'Group not found' });
     }
-    res.json(group);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching group', error });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
-// POST - create a new group
+// POST - create new group
 router.post('/', async (req, res) => {
+  const { name, members } = req.body;
+  if (!name || typeof members !== 'number') {
+    return res.status(400).json({ message: 'Invalid input' });
+  }
+
+  const newGroup = new Group({ name, members });
   try {
-    const { name, members } = req.body;
-
-    if (!name || typeof members !== 'number') {
-      return res.status(400).json({ message: 'Invalid input' });
-    }
-
-    const newGroup = new Group({ name, members });
     const savedGroup = await newGroup.save();
     res.status(201).json(savedGroup);
-  } catch (error) {
-    res.status(500).json({ message: 'Error creating group', error });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
-// PUT - update group by ID
+// PUT - update group
 router.put('/:id', async (req, res) => {
+  const { name, members } = req.body;
   try {
-    const { name, members } = req.body;
-
-    if (!name || typeof members !== 'number') {
-      return res.status(400).json({ message: 'Invalid input' });
-    }
-
     const updatedGroup = await Group.findByIdAndUpdate(
       req.params.id,
       { name, members },
-      { new: true, runValidators: true }
+      { new: true }
     );
 
-    if (!updatedGroup) {
-      return res.status(404).json({ message: 'Group not found' });
+    if (updatedGroup) {
+      res.json(updatedGroup);
+    } else {
+      res.status(404).json({ message: 'Group not found' });
     }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
-    res.json(updatedGroup);
-  } catch (error) {
-    res.status(500).json({ message: 'Error updating group', error });
+// DELETE group
+router.delete('/:id', async (req, res) => {
+  try {
+    const result = await Group.findByIdAndDelete(req.params.id);
+    if (result) {
+      res.json({ message: 'Group deleted' });
+    } else {
+      res.status(404).json({ message: 'Group not found' });
+    }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 

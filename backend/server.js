@@ -1,30 +1,25 @@
+// backend/server.js
+require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const groupRoutes = require('./routes/groups');
-
-dotenv.config(); // Load .env
+const cors = require('cors');
 
 const app = express();
+const groupRoutes = require('./routes/groups');
+
 app.use(cors());
 app.use(express.json());
 
-// Routes
 app.use('/api/groups', groupRoutes);
 
-// MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
 .then(() => {
-  console.log('✅ Connected to MongoDB');
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`🚀 Server is running on http://localhost:${PORT}`);
+  console.log('MongoDB connected');
+  app.listen(process.env.PORT, () => {
+    console.log(`Server running on http://localhost:${process.env.PORT}`);
   });
 })
-.catch(err => {
-  console.error('❌ MongoDB connection error:', err);
-});
+.catch(err => console.error('DB connection error:', err));
