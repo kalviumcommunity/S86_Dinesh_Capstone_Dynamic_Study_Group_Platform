@@ -1,79 +1,33 @@
-// backend/routes/groups.js
 const express = require('express');
 const router = express.Router();
 const Group = require('../models/Group');
+const User = require('../models/user');
 
-// GET all groups
+// POST - create a group and relate to user
+router.post('/', async (req, res) => {
+  const { name, members, createdBy } = req.body;
+
+  try {
+    const user = await User.findById(createdBy);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const newGroup = new Group({ name, members, createdBy });
+    await newGroup.save();
+    res.status(201).json(newGroup);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// GET - all groups with user info populated
 router.get('/', async (req, res) => {
   try {
-    const groups = await Group.find();
+    const groups = await Group.find().populate('createdBy', 'name email');
     res.json(groups);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// GET group by ID
-router.get('/:id', async (req, res) => {
-  try {
-    const group = await Group.findById(req.params.id);
-    if (group) {
-      res.json(group);
-    } else {
-      res.status(404).json({ message: 'Group not found' });
-    }
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// POST - create new group
-router.post('/', async (req, res) => {
-  const { name, members } = req.body;
-  if (!name || typeof members !== 'number') {
-    return res.status(400).json({ message: 'Invalid input' });
-  }
-
-  const newGroup = new Group({ name, members });
-  try {
-    const savedGroup = await newGroup.save();
-    res.status(201).json(savedGroup);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// PUT - update group
-router.put('/:id', async (req, res) => {
-  const { name, members } = req.body;
-  try {
-    const updatedGroup = await Group.findByIdAndUpdate(
-      req.params.id,
-      { name, members },
-      { new: true }
-    );
-
-    if (updatedGroup) {
-      res.json(updatedGroup);
-    } else {
-      res.status(404).json({ message: 'Group not found' });
-    }
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// DELETE group
-router.delete('/:id', async (req, res) => {
-  try {
-    const result = await Group.findByIdAndDelete(req.params.id);
-    if (result) {
-      res.json({ message: 'Group deleted' });
-    } else {
-      res.status(404).json({ message: 'Group not found' });
-    }
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 
