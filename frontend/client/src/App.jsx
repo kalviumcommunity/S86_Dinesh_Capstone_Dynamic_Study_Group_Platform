@@ -1,34 +1,71 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useMemo, useState } from 'react'
 import './App.css'
+import GroupGrid from './components/GroupGrid'
+import HeroSection from './components/HeroSection'
+import StatsStrip from './components/StatsStrip'
+import TopBar from './components/TopBar'
+import WeeklyFocus from './components/WeeklyFocus'
+
+const stats = [
+  { label: 'Active Groups', value: '18' },
+  { label: 'Live Sessions Today', value: '7' },
+  { label: 'Resources Shared', value: '124' },
+]
+
+const groups = [
+  {
+    id: 1,
+    name: 'React Interview Prep Circle',
+    topic: 'Frontend Engineering',
+    level: 'Intermediate',
+    members: 16,
+    nextSession: 'Tue, 7:00 PM',
+    goal: 'Practice component design, hooks, and state patterns through mock rounds.',
+  },
+  {
+    id: 2,
+    name: 'Data Structures Night Lab',
+    topic: 'DSA',
+    level: 'Beginner',
+    members: 22,
+    nextSession: 'Wed, 8:30 PM',
+    goal: 'Solve arrays, strings, and recursion problems with guided peer explanations.',
+  },
+  {
+    id: 3,
+    name: 'System Design Study Room',
+    topic: 'Backend Architecture',
+    level: 'Advanced',
+    members: 12,
+    nextSession: 'Fri, 6:00 PM',
+    goal: 'Review scalability patterns and design tradeoffs using real product examples.',
+  },
+]
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [query, setQuery] = useState('')
+
+  const filteredGroups = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase()
+
+    if (!normalizedQuery) {
+      return groups
+    }
+
+    return groups.filter((group) => {
+      const searchText = `${group.name} ${group.topic} ${group.level}`.toLowerCase()
+      return searchText.includes(normalizedQuery)
+    })
+  }, [query])
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="app-shell">
+      <TopBar />
+      <HeroSection query={query} onQueryChange={setQuery} />
+      <StatsStrip stats={stats} />
+      <GroupGrid groups={filteredGroups} />
+      <WeeklyFocus />
+    </div>
   )
 }
 
