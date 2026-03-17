@@ -116,6 +116,41 @@
   color: var(--ink-dim);
 }
 
+.oauth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 1rem 0 0.75rem;
+  color: var(--ink-dim);
+  font-size: 0.88rem;
+}
+
+.oauth-divider::before,
+.oauth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.google-auth-block {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.google-signin-slot {
+  min-height: 44px;
+}
+
+.google-auth-config {
+  padding: 0.85rem;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: #f8fafc;
+  color: var(--ink-dim);
+  font-size: 0.9rem;
+}
+
 .hero-section {
   padding: 1.8rem;
   border-radius: 18px;

@@ -10,7 +10,7 @@ function TopBar({ currentUser, onLogout }) {
       </div>
 
       <div className="top-bar-actions">
-        {currentUser ? <p className="session-text">Signed in as @{currentUser.username}</p> : null}
+        {currentUser ? <p className="session-text">Signed in as @{currentUser.username}{currentUser.authProvider ? ` via ${currentUser.authProvider}` : ''}</p> : null}
         {currentUser ? (
           <button className="secondary-btn session-btn" type="button" onClick={onLogout}>Logout</button>
         ) : (
