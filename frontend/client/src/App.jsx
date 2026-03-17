@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './App.css'
+import AuthPanel from './components/AuthPanel'
 import GroupGrid from './components/GroupGrid'
 import HeroSection from './components/HeroSection'
 import ResourceUploader from './components/ResourceUploader'
@@ -7,6 +8,9 @@ import StatsStrip from './components/StatsStrip'
 import TopBar from './components/TopBar'
 import DesignMatchBoard from './components/DesignMatchBoard'
 import WeeklyFocus from './components/WeeklyFocus'
+
+const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const authStorageKey = 'dynamic-study-group-auth'
 
 const stats = [
   { label: 'Active Groups', value: '18' },
@@ -46,6 +50,51 @@ const groups = [
 
 function App() {
   const [query, setQuery] = useState('')
+  const [session, setSession] = useState(() => {
+    const storedValue = localStorage.getItem(authStorageKey)
+    return storedValue ? JSON.parse(storedValue) : null
+  })
+
+  useEffect(() => {
+    let ignore = false
+
+    async function verifySession() {
+      if (!session?.token) {
+        return
+      }
+
+      try {
+        const response = await fetch(`${apiBaseUrl}/api/users/me`, {
+          headers: {
+            Authorization: `Bearer ${session.token}`,
+          },
+        })
+
+        if (!response.ok) {
+          throw new Error('Session expired')
+        }
+
+        const user = await response.json()
+
+        if (!ignore) {
+          const nextSession = { token: session.token, user }
+          setSession(nextSession)
+          localStorage.setItem(authStorageKey, JSON.stringify(nextSession))
+        }
+      } catch {
+        if (!ignore) {
+          setSession(null)
+          localStorage.removeItem(authStorageKey)
+        }
+      }
+    }
+
+    verifySession()
+
+    return () => {
+      ignore = true
+    }
+  }, [session?.token])
 
   const filteredGroups = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
@@ -60,13 +109,24 @@ function App() {
     })
   }, [query])
 
+  function handleAuthSuccess(payload) {
+    setSession(payload)
+    localStorage.setItem(authStorageKey, JSON.stringify(payload))
+  }
+
+  function handleLogout() {
+    setSession(null)
+    localStorage.removeItem(authStorageKey)
+  }
+
   return (
     <div className="app-shell">
-      <TopBar />
+      <TopBar currentUser={session?.user} onLogout={handleLogout} />
       <HeroSection query={query} onQueryChange={setQuery} />
+      <AuthPanel session={session} onAuthSuccess={handleAuthSuccess} />
       <StatsStrip stats={stats} />
       <GroupGrid groups={filteredGroups} />
-      <ResourceUploader />
+      <ResourceUploader authToken={session?.token} currentUser={session?.user} />
       <DesignMatchBoard />
       <WeeklyFocus />
     </div>

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Group = require('../models/Group');
-const User = require('../models/user');
+const User = require('../models/User');
 
 // POST - create a group and relate to user
 router.post('/', async (req, res) => {
@@ -10,7 +10,7 @@ router.post('/', async (req, res) => {
   try {
     const user = await User.findById(createdBy);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'user not found' });
     }
 
     const newGroup = new Group({ name, members, createdBy });
