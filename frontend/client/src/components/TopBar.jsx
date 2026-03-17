@@ -1,4 +1,4 @@
-function TopBar() {
+function TopBar({ currentUser, onLogout }) {
   return (
     <header className="top-bar">
       <div className="brand-block">
@@ -8,7 +8,15 @@ function TopBar() {
           <p className="brand-subtitle">Plan, collaborate, and track progress together.</p>
         </div>
       </div>
-      <button className="primary-btn" type="button">Create Group</button>
+
+      <div className="top-bar-actions">
+        {currentUser ? <p className="session-text">Signed in as @{currentUser.username}</p> : null}
+        {currentUser ? (
+          <button className="secondary-btn session-btn" type="button" onClick={onLogout}>Logout</button>
+        ) : (
+          <button className="primary-btn" type="button">Create Group</button>
+        )}
+      </div>
     </header>
   )
 }

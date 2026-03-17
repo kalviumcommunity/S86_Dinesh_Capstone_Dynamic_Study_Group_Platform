@@ -18,7 +18,7 @@ function formatUploadDate(value) {
   return new Date(value).toLocaleString()
 }
 
-function ResourceUploader() {
+function ResourceUploader({ authToken, currentUser }) {
   const [title, setTitle] = useState('')
   const [selectedFile, setSelectedFile] = useState(null)
   const [uploads, setUploads] = useState([])
@@ -67,6 +67,11 @@ function ResourceUploader() {
     setFeedback('')
     setError('')
 
+    if (!authToken) {
+      setError('Login is required before uploading files.')
+      return
+    }
+
     if (!selectedFile) {
       setError('Choose a file before uploading.')
       return
@@ -81,6 +86,9 @@ function ResourceUploader() {
     try {
       const response = await fetch(`${apiBaseUrl}/api/uploads`, {
         method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
         body: formData,
       })
 
@@ -131,10 +139,14 @@ function ResourceUploader() {
           onChange={(event) => setSelectedFile(event.target.files?.[0] || null)}
         />
 
-        <button className="primary-btn" type="submit" disabled={isUploading}>
+        <button className="primary-btn" type="submit" disabled={isUploading || !currentUser}>
           {isUploading ? 'Uploading...' : 'Upload File'}
         </button>
       </form>
+
+      {!currentUser ? (
+        <p className="upload-feedback error-text">Login is required before uploading files.</p>
+      ) : null}
 
       {feedback ? <p className="upload-feedback success-text">{feedback}</p> : null}
       {error ? <p className="upload-feedback error-text">{error}</p> : null}
@@ -159,6 +171,7 @@ function ResourceUploader() {
                   <p className="upload-title">{upload.title}</p>
                   <p className="upload-meta">
                     {upload.originalName} · {formatFileSize(upload.size)} · {formatUploadDate(upload.createdAt)}
+                    {upload.uploadedBy?.username ? ` · uploaded by @${upload.uploadedBy.username}` : ''}
                   </p>
                 </div>
                 <a className="secondary-btn upload-link" href={upload.fileUrl} target="_blank" rel="noreferrer">

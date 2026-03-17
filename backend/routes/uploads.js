@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 const Upload = require('../models/Upload');
+const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -28,14 +29,14 @@ const upload = multer({
 
 router.get('/', async (_req, res) => {
   try {
-    const uploads = await Upload.find().sort({ createdAt: -1 });
+    const uploads = await Upload.find().populate('uploadedBy', 'username name').sort({ createdAt: -1 });
     res.json(uploads);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-router.post('/', (req, res) => {
+router.post('/', authMiddleware, (req, res) => {
   upload.single('file')(req, res, async (error) => {
     if (error) {
       return res.status(400).json({ message: error.message });
@@ -56,9 +57,11 @@ router.post('/', (req, res) => {
         fileUrl: `${baseUrl}/uploads/${req.file.filename}`,
         mimeType: req.file.mimetype,
         size: req.file.size,
+        uploadedBy: req.user.userId,
       });
 
       await uploadRecord.save();
+      await uploadRecord.populate('uploadedBy', 'username name');
       res.status(201).json(uploadRecord);
     } catch (saveError) {
       res.status(500).json({ message: saveError.message });
