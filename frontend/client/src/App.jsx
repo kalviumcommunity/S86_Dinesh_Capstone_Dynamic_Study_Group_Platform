@@ -2,8 +2,10 @@ import { useMemo, useState } from 'react'
 import './App.css'
 import GroupGrid from './components/GroupGrid'
 import HeroSection from './components/HeroSection'
+import ResourceUploader from './components/ResourceUploader'
 import StatsStrip from './components/StatsStrip'
 import TopBar from './components/TopBar'
+import DesignMatchBoard from './components/DesignMatchBoard'
 import WeeklyFocus from './components/WeeklyFocus'
 
 const stats = [
@@ -64,6 +66,8 @@ function App() {
       <HeroSection query={query} onQueryChange={setQuery} />
       <StatsStrip stats={stats} />
       <GroupGrid groups={filteredGroups} />
+      <ResourceUploader />
+      <DesignMatchBoard />
       <WeeklyFocus />
     </div>
   )
