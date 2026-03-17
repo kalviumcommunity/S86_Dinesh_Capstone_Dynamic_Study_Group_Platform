@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import GoogleSignInButton from './GoogleSignInButton'
 
 const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
@@ -54,7 +55,8 @@ function AuthPanel({ session, onAuthSuccess }) {
         <p className="section-kicker">AUTHENTICATION</p>
         <h2>Signed in successfully</h2>
         <p className="auth-summary">
-          You are authenticated as <strong>@{session.user.username}</strong>. Protected actions like file upload are now enabled.
+          You are authenticated as <strong>@{session.user.username}</strong>
+          {session.user.authProvider ? ` using ${session.user.authProvider}` : ''}. Protected actions like file upload are now enabled.
         </p>
       </section>
     )
@@ -137,6 +139,12 @@ function AuthPanel({ session, onAuthSuccess }) {
           {isSubmitting ? 'Please wait...' : mode === 'register' ? 'Register' : 'Login'}
         </button>
       </form>
+
+      <div className="oauth-divider">
+        <span>or continue with Google</span>
+      </div>
+
+      <GoogleSignInButton onAuthSuccess={onAuthSuccess} />
 
       {error ? <p className="upload-feedback error-text">{error}</p> : null}
     </section>

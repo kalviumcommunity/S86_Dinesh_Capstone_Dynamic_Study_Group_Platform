@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true,
     lowercase: true,
+    sparse: true,
   },
   username: {
     type: String,
@@ -19,8 +20,21 @@ const userSchema = new mongoose.Schema({
   },
   passwordHash: {
     type: String,
-    required: true,
     select: false,
+  },
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
+  avatarUrl: {
+    type: String,
+    trim: true,
+  },
+  authProvider: {
+    type: String,
+    enum: ['local', 'google'],
+    default: 'local',
   },
 });
 
